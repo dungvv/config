@@ -3,6 +3,7 @@
 -----------------------------------------------------------
 
 local home = os.getenv("HOME")
+local conf_dir = vim.fn.stdpath("config")
 local g = vim.g
 local opt = vim.opt
 local opt_global = vim.opt_global
@@ -72,9 +73,9 @@ opt.smartcase = true -- case insentive unless capitals used in search
 -- backup and undo
 opt.backup = true
 opt.swapfile = false
-opt.backupdir = home .. '/.config/nvim/.backup/'
-opt.directory = home .. '/.config/nvim/.swp/'
-opt.undodir = home .. '/.config/nvim/.undo/'
+opt.backupdir = conf_dir .. '/.backup/'
+opt.directory = conf_dir .. '/.swp/'
+opt.undodir = conf_dir .. '/.undo/'
 opt.undofile = true
 opt.undolevels = 1000
 opt.undoreload = 10000
