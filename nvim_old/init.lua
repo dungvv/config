@@ -20,6 +20,6 @@ vim.g.loaded_python3_provider = 0
 
 require('core')
 require('lazy').setup('plugins')
--- require('lsp')
--- require('keymappings')
+require('lsp')
+require('keymappings')
 
