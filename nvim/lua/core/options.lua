@@ -1,92 +1,143 @@
--------------------------------------------------------------
--- General Neovim settings and configuration
------------------------------------------------------------
+local global = require("core.global")
 
-local home = os.getenv("HOME")
-local conf_dir = vim.fn.stdpath("config")
-local g = vim.g
-local opt = vim.opt
-local opt_global = vim.opt_global
+local function load_options()
+	local global_local = {
+		-- backupdir = global.cache_dir .. "backup/",
+		-- directory = global.cache_dir .. "swap/",
+		-- spellfile = global.cache_dir .. "spell/en.uft-8.add",
+		-- viewdir = global.cache_dir .. "view/",
+		autoindent = true,
+		autoread = true,
+		autowrite = true,
+		backspace = "indent,eol,start",
+		backup = false,
+		backupskip = "/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*,*/shm/*,/private/var/*,.vault.vim",
+		breakat = [[\ \	;:,!?]],
+		breakindentopt = "shift:2,min:20",
+		clipboard = "unnamedplus",
+		cmdheight = 1, -- 0, 1, 2
+		cmdwinheight = 5,
+		complete = ".,w,b,k",
+		completeopt = "menuone,noselect",
+		concealcursor = "niv",
+		conceallevel = 0,
+		cursorcolumn = true,
+		cursorline = true,
+		diffopt = "filler,iwhite,internal,linematch:60,algorithm:patience",
+		display = "lastline",
+		encoding = "utf-8",
+		equalalways = false,
+		errorbells = true,
+		expandtab = true,
+		fileformats = "unix,mac,dos",
+		foldenable = true,
+		foldlevelstart = 99,
+		formatoptions = "1jcroql",
+		grepformat = "%f:%l:%c:%m",
+		grepprg = "rg --hidden --vimgrep --smart-case --",
+		helpheight = 12,
+		hidden = true,
+		history = 2000,
+		ignorecase = true,
+		inccommand = "nosplit",
+		incsearch = true,
+		infercase = true,
+		jumpoptions = "stack",
+		laststatus = 2, -- global status line
+		-- lazyredraw = true,
+		linebreak = true,
+		list = true,
+		listchars = "tab:»·,nbsp:+,trail:·,extends:→,precedes:←",
+		magic = true,
+		mouse = "nv",
+		mousescroll = "ver:3,hor:6",
+		number = true,
+		previewheight = 12,
+		-- Do NOT adjust the following option (pumblend) if you're using transparent background
+		pumblend = 0,
+		pumheight = 15,
+		redrawtime = 1500,
+		relativenumber = true,
+		ruler = true,
+		scrolloff = 2,
+		sessionoptions = "buffers,curdir,folds,help,tabpages,winpos,winsize",
+		shada = "!,'500,<50,@100,s10,h",
+		shiftround = true,
+		shiftwidth = 4,
+		shortmess = "aoOTIcF",
+		showbreak = "↳  ",
+		showcmd = false,
+		showmode = false,
+		showtabline = 2,
+		sidescrolloff = 5,
+		signcolumn = "yes",
+		smartcase = true,
+		smarttab = true,
+		softtabstop = 4,
+		splitbelow = true,
+		splitkeep = "screen",
+		splitright = true,
+		startofline = false,
+		swapfile = false,
+		switchbuf = "usetab,uselast",
+		synmaxcol = 2500,
+		tabstop = 4,
+		termguicolors = true,
+		timeout = true,
+		timeoutlen = 300,
+		ttimeout = true,
+		ttimeoutlen = 0,
+		-- ttyfast = true,
+		undodir = global.cache_dir .. "undo/",
+		undofile = true,
+		-- Please do NOT set `updatetime` to above 500, otherwise most plugins may not function correctly
+		updatetime = 200,
+		viewoptions = "folds,cursor,curdir,slash,unix",
+		virtualedit = "block",
+		visualbell = true,
+		whichwrap = "h,l,<,>,[,],~",
+		wildignore = ".git,.hg,.svn,*.pyc,*.o,*.out,*.jpg,*.jpeg,*.png,*.gif,*.zip,**/tmp/**,*.DS_Store,**/node_modules/**,**/bower_modules/**",
+		wildignorecase = true,
+		-- Do NOT adjust the following option (winblend) if you're using transparent background
+		winblend = 0,
+		winminwidth = 10,
+		winwidth = 30,
+		wrap = false,
+		wrapscan = true,
+		writebackup = false,
+	}
 
+	local function isempty(s)
+		return s == nil or s == ""
+	end
+	local function use_if_defined(val, fallback)
+		return val ~= nil and val or fallback
+	end
 
--- disable language provider support (lua and vimscript plugins only)
-g.loaded_perl_provider = 0
-g.loaded_ruby_provider = 0
-g.loaded_node_provider = 0
-g.loaded_python_provider = 0
-g.loaded_python3_provider = 0
+	-- custom python provider
+	local conda_prefix = os.getenv("CONDA_PREFIX")
+	if not isempty(conda_prefix) then
+		vim.g.python_host_prog = use_if_defined(vim.g.python_host_prog, conda_prefix .. "/bin/python")
+		vim.g.python3_host_prog = use_if_defined(vim.g.python3_host_prog, conda_prefix .. "/bin/python")
+	else
+		vim.g.python_host_prog = use_if_defined(vim.g.python_host_prog, "python")
+		vim.g.python3_host_prog = use_if_defined(vim.g.python3_host_prog, "python3")
+	end
 
--- disable unused stuff
-g.loaded = 1
-g.loaded_netrw = 1
-g.loaded_netrwPlugin = 1
-g.loaded_2html_plugin = 1
-g.loaded_tutor_mode_plugin = 1
-g.loaded_matchit = 1  -- use vim-matchup
-g.loaded_matchparen = 1  -- use vim-matchup
+	-- custom sqlite3 provider
+	-- local sqlite_clib_path = os.getenv("SQLITE_CLIB_PATH")
+	-- if not isempty(sqlite_clib_path) then
+	-- 	-- Try environment variable first
+	-- 	vim.g.sqlite_clib_path = sqlite_clib_path
+	-- elseif global.is_windows then
+	-- 	-- Fix sqlite3 missing-lib issue on Windows
+	-- 	-- Download the DLLs form https://www.sqlite.org/download.html
+	-- 	vim.g.sqlite_clib_path = global.home .. "/Documents/sqlite-dll-win64-x64-3400200/sqlite3.dll"
+	-- end
 
--- basic settings
-vim.cmd('filetype plugin on')
-g.completeopt = { "menuone", "noinsert", "noselect" }
-opt_global.shortmess:remove("F")
-opt.encoding = "utf-8"
-opt.backspace = "indent,eol,start" -- backspace works on every char in insert mode
-opt.history = 1000
-opt.startofline = true
-opt.clipboard = 'unnamedplus'
-opt.textwidth = 73
+	for name, value in pairs(require("modules.utils").extend_config(global_local, "user.options")) do
+		vim.o[name] = value
+	end
+end
 
--- wait time
--- opt.timeout = false
-opt.timeoutlen = 300
-opt.ttimeout = true
-opt.ttimeoutlen = 100
-
--- display
-opt.showmatch  = true -- show matching brackets
-opt.scrolloff = 3 -- always show 3 rows from edge of the screen
-opt.synmaxcol = 300 -- stop syntax highlight after x lines for performance
-opt.laststatus = 2 -- always show status line
-
-opt.list = false -- do not display white characters
-opt.foldenable = false
-opt.foldlevel = 4 -- limit folding to 4 levels
-opt.foldmethod = 'syntax' -- use language syntax to generate folds
-opt.wrap = false --do not wrap lines even if very long
-opt.eol = false -- show if there's no eol char
-opt.showbreak= '↪' -- character to show when line is broken
-
-opt.termguicolors = true
-
--- sidebar
-opt.number = true -- line number on the left
-opt.numberwidth = 3 -- always reserve 3 spaces for line number
-opt.signcolumn = 'yes' -- keep 1 column for coc.vim  check
-opt.modelines = 0
-opt.showcmd = true -- display command in bottom bar
-
--- search
-opt.incsearch = true -- starts searching as soon as typing, without enter needed
-opt.ignorecase = true -- ignore letter case when searching
-opt.smartcase = true -- case insentive unless capitals used in search
-
--- backup and undo
-opt.backup = true
-opt.swapfile = false
-opt.backupdir = conf_dir .. '/.backup/'
-opt.directory = conf_dir .. '/.swp/'
-opt.undodir = conf_dir .. '/.undo/'
-opt.undofile = true
-opt.undolevels = 1000
-opt.undoreload = 10000
-
--- text format
-opt.tabstop = 2
-opt.shiftwidth = 2
-opt.softtabstop = 2
-opt.cindent = true
-opt.autoindent = true
-opt.smartindent = true
-opt.expandtab = true -- expand tab to spaces
-opt.smarttab = true
-
+load_options()
